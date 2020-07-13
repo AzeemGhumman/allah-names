@@ -114,9 +114,9 @@ import {
         borderWidth: 1, 
     },
     main_menu_cell: {
-      backgroundColor: 'green', 
+      // backgroundColor: 'green', 
       width: 100, 
-      height: 100,  
+      height: 150,  
       alignItems: 'center',
       justifyContent: 'center',
       margin: 10, 

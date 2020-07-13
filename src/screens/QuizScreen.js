@@ -40,7 +40,6 @@ export default class QuizScreen extends React.Component {
     };
   }
 
-  
   // Name Pressed
   callback_namePressed = (item) => {
 
@@ -89,10 +88,6 @@ export default class QuizScreen extends React.Component {
         this.setState({is_lost: true});
       }
     }
-
-    // console.log("id: " + item.id);
-    // console.log("first: " + this.state.first);
-    // console.log("second: " + this.state.second);
   }
 
   // Layout changed
@@ -302,16 +297,9 @@ export default class QuizScreen extends React.Component {
 }
 
 /*
-
-TODO: BUG: sometimes quiz items inverted.
-fill in the blanks:
-  - add contents to info page. relevant hadith and credits
-  - setup main page
-  - app icon
-  - clean code
-  - test on tablet
-  - contact developers?
-  - finish project
-
-
+TODO: 
+Test on tablet
+Change app name
+Publish to play store
+Ahmed feedback
 */
