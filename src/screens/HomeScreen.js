@@ -1,19 +1,14 @@
 import React from "react";
 import {
   TouchableOpacity,
-  TouchableHighlight,
   Button,
   View,
   Text,
-  Image,
-  Platform,
   StyleSheet,
-  Alert,
   Dimensions, 
 } from "react-native";
-// import { NavigationEvents } from "react-navigation";
 
-import { Icon } from 'react-native-elements'
+var RNFS = require("react-native-fs");
 
 import Sound from 'react-native-sound'
 
@@ -23,59 +18,46 @@ import Slider from "react-native-slider";
 
 import { FlatList } from 'react-native-gesture-handler';
 
-import names_json from '../../../assets/data/names.json';
-import timings_json from '../../../assets/data/timings.json';
+import {nameCellWidth, nameCellHeight, maxTotalColumns, fontSizeArabic, fontSizeArabicSmall, fontSizeArabicSmallThreshold, fontSizeTranslation, AllahTotalNames} from '../common/helper.js'; 
 
-import { FontAwesomeIcon } from '@fortawesome/react-native-fontawesome'
-import { faCoffee, faStop, faPlay } from '@fortawesome/free-solid-svg-icons'
+import {styles} from '../common/styles.js'; 
+
+import names_json from '../../assets/data/names.json';
+import timings_json from '../../assets/data/timings.json';
 
 const screenWidth = Dimensions.get("window").width;
-// const totalColumns = 4;
-const nameCellWidth = 80;
-const nameCellHeight = 70;
-const fontSizeArabic = 22.5;
-const fontSizeArabicSmall = 10.0;
-const fontSizeArabicSmallThreshold = 15.0;
-const fontSizeTranslation = 13.00
-
-const maxTotalColumns = 10;
-
-const startNameID = 1; // 10
-const endNameID = 99; // 19
 
 const completeAudioPath = "complete"
-const AllahTotalNames = 99; 
 
+const settingsFilepath = RNFS.DocumentDirectoryPath + "/settings.txt";
 
-// TODO: Ask Ahmed to help with custom font for arabic and urdu text
-// TODO: How do I change state from callback method
-// TODO: Audio Player for complete.mp4 at bottom of screen
-// TODO: Set size of name and set number of columns based on screen dimensions - DONE
-// Seek complete.mp4 based on which name user clicked.
-// Select name based on where the complete.mp4 seeked value is.
-// How to re-render when potrait and landscape modes switched. 
-// Probably scroll flatlist to bring the current item in view: 
-// 1. https://stackoverflow.com/questions/54662444/flatlist-react-native-how-i-can-focus-scroll-in-the-specific-list-item
-// 2. https://aboutreact.com/scroll_to_a_specific_item_in_scrollview_list_view/
-// Remove title bar to get more space
+const SpeedLabel = {
+  NORMAL: '1x',
+  FAST: '1.5x',
+  SLOW: '0.75x',
+}
 
-/*
+const SpeedNumber = {
+  NORMAL: 1.0,
+  FAST: 1.5,
+  SLOW: 0.75,
+}
 
-Audio Recording and playback application
-https://www.smashingmagazine.com/2018/04/audio-video-recording-react-native-expo/
-
-Code: https://github.com/apiko-dev/Multimedia-Notes
-
-
-Leaner example for now: 
-https://stackoverflow.com/questions/55537889/implemtation-of-audio-progress-bar-in-react-native
-
-*/
+const Repeat = {
+  ON: "REPEAT ON",
+  OFF: "REPEAT OFF", 
+}
 
 export default class HomeScreen extends React.Component {
   constructor(props) {
     super(props);
+
+    var startNameID = this.props.navigation.getParam("startNameID"); 
+    var endNameID = this.props.navigation.getParam("endNameID");
+
     this.state = {
+      start_name_id: startNameID,
+      end_name_id: endNameID, 
       names_data: null,
       selected_name: startNameID, 
       total_columns: null, 
@@ -83,22 +65,69 @@ export default class HomeScreen extends React.Component {
       audio_playing: false,
       // audio_current_time: 0, 
       play_btn_status: "Play",
-      repeat_btn_status: "Repeat",
+      repeat_btn_status: String(Repeat.ON),
       repeat_audio: true,  
-      speed_btn_status: "1x", 
-      audio_speed: 1.0,
+      speed_btn_status: String(SpeedLabel.NORMAL), 
+      audio_speed: SpeedNumber.NORMAL,
       slider_start_ts: 0, 
       slider_end_ts: 0, 
-      slider_value: 0.0, 
+      slider_value: 0.0,
+      settings: null, 
     };
+  }
+
+  async readSettings() {
+    try {
+      const check_file = await RNFS.readFile(settingsFilepath, "utf8");
+      console.log("file contents: " + check_file);
+      return check_file;
+    } catch (e) {
+      console.log("Error: reading file ....");
+    }
+  }
+
+  writeSettingsFile = (content) => {
+    // Create new file
+    RNFS.writeFile(settingsFilepath, JSON.stringify(content), "utf8")
+    .then(success => {
+      console.log("file written");
+    })
+    .catch(err => {
+      console.log("Error writing file: " + err.message);
+    });
+  };
+
+  getSettingsFromText = (settings_text) => {
+    return JSON.parse(settings_text);
+  }
+
+  getDefaultSettings = () => {
+    return {
+      'speed_label': SpeedLabel.NORMAL, 
+      'speed_number': SpeedNumber.NORMAL, 
+      'repeat': Repeat.ON, 
+    }
+  }
+
+  applySettings = (settings) => {
+    this.setState({speed_btn_status: settings.speed_label});
+    this.setState({audio_speed: settings.speed_number });
+    this.setState({repeat_btn_status: settings.repeat});
+
+    if (settings.repeat == Repeat.ON) {
+      this.setState({repeat_audio: true });
+    }
+    else {
+      this.setState({repeat_audio: false });
+    }
+    
   }
 
   getScrollIndex = (name) => {
     var total_columns = this.state.total_columns;
-    console.log(name + " / " + startNameID + " / " + total_columns)
-    // var result = Math.ceil(parseInt(name) / total_columns) - startNameID;
-    var result = Math.floor((parseInt(name) - startNameID) / total_columns);
+    var result = Math.floor((parseInt(name) - this.state.start_name_id) / total_columns);
 
+    // Clip negative results
     if (result <= 0) {
       return 0;
     }
@@ -140,12 +169,7 @@ export default class HomeScreen extends React.Component {
     var seek_time = this.getStartTimeForName(name);
     // this.setState({audio_current_time: seek_time});
     
-    this.player.seek(seek_time, 10);
-
-    // Update slider position
-    var slider_value = this.getSliderPositionFromTimestamp(seek_time);
-    // console.log("s-val: " + slider_value);
-    // this.setState({ slider_value: slider_value });
+    this.player.seek(seek_time, 10); // seek time within 10ms 
   }
 
   // Name Pressed
@@ -155,10 +179,6 @@ export default class HomeScreen extends React.Component {
     this.pauseAudio();
 
     this.setState({ selected_name: item.id });
-
-    // Scroll to selected name
-    // var name_index = this.getScrollIndex(item.id);
-    // this.flat_list.scrollToIndex({animated: true, index: name_index });
 
     // Seek to start timestamp of selected name
     var seek_time = this.getStartTimeForName(item.id);
@@ -198,32 +218,53 @@ export default class HomeScreen extends React.Component {
 
   // Repeat button pressed
   callback_repeatPressed = () => {
+
+    var settings = this.state.settings;
+    
     // Change button label
     if (this.state.repeat_audio) {
-      this.setState({repeat_btn_status: "Repeat Off"});
+      this.setState({repeat_btn_status: Repeat.OFF});
       this.setState({repeat_audio: false });
+      settings.repeat = Repeat.OFF;
     }
     else {
-      this.setState({repeat_btn_status: "Repeat"});
+      this.setState({repeat_btn_status: Repeat.ON});
       this.setState({repeat_audio: true });
+      settings.repeat = Repeat.ON;
     }
+
+    // Write settings to file
+    console.log(settings);
+    this.writeSettingsFile(settings);
   }
 
   // Speed button pressed
   callback_speedPressed = () => {
+
+    var settings = this.state.settings;
+
     // Change button label
-    if (this.state.audio_speed == 1.0) {
-      this.setState({speed_btn_status: "1.5x"});
-      this.setState({audio_speed: 1.5 });
+    if (this.state.audio_speed == SpeedNumber.NORMAL) {
+      this.setState({speed_btn_status: SpeedLabel.FAST});
+      this.setState({audio_speed: SpeedNumber.FAST });
+      settings.speed_label = SpeedLabel.FAST;
+      settings.speed_number = SpeedNumber.FAST;
     }
-    else if (this.state.audio_speed == 1.5) {
-      this.setState({speed_btn_status: "0.75x"});
-      this.setState({audio_speed: 0.75 });
+    else if (this.state.audio_speed == SpeedNumber.FAST) {
+      this.setState({speed_btn_status: SpeedLabel.SLOW});
+      this.setState({audio_speed: SpeedNumber.SLOW });
+      settings.speed_label = SpeedLabel.SLOW;
+      settings.speed_number = SpeedNumber.SLOW;
     }
     else {
-      this.setState({speed_btn_status: "1x"});
-      this.setState({audio_speed: 1.0 });
+      this.setState({speed_btn_status: SpeedLabel.NORMAL});
+      this.setState({audio_speed: SpeedNumber.NORMAL });
+      settings.speed_label = SpeedLabel.NORMAL;
+      settings.speed_number = SpeedNumber.NORMAL;
     }
+
+    // Write settings to file
+    this.writeSettingsFile(settings);
   }
 
   // Sound button pressed
@@ -245,7 +286,7 @@ export default class HomeScreen extends React.Component {
     this.setState({total_columns: total_columns});
 
     // Load dataset since the cell ordering depends on total_columns
-    var names_data = this.loadNames(names_json, startNameID, endNameID, total_columns);
+    var names_data = this.loadNames(total_columns);
     this.setState({ names_data: names_data });
   }
 
@@ -289,21 +330,20 @@ export default class HomeScreen extends React.Component {
   }
 
 
-  loadNames = (json_file, start_index, end_index, total_columns) => {
+  loadNames = (total_columns) => {
 
     var result = [];
     var row = [];
     
     var counter = 1;
-    for (var index = start_index; index <= end_index; index++) {
-      var item = json_file[String(index)];
+    for (var index = this.state.start_name_id; index <= this.state.end_name_id; index++) {
+      var item = names_json[String(index)];
       row.push({"id": String(index), "arabic": item.arabic, "urdu": item.urdu});
   
       if (counter % total_columns == 0) {
         result = result.concat(row.reverse());
         row = [];
       }
-  
       counter += 1;
     }
   
@@ -319,25 +359,37 @@ export default class HomeScreen extends React.Component {
   componentDidMount() {
     // Init setup
 
+    // Read settings from file
+    RNFS.exists(settingsFilepath).then(exists => {
+      if (exists) {
+        // Read existing file
+        var that = this;
+        that.readSettings().then(function (result) {
+          var settings = that.getSettingsFromText(result);
+          that.setState({'settings': settings});
+          that.applySettings(settings);
+          console.log(settings);
+        });
+      } else {
+        // Write default settings
+        this.writeSettingsFile(this.getDefaultSettings());
+        this.setState({'settings': this.getDefaultSettings()});
+        this.applySettings(this.getDefaultSettings());
+      }
+    });
+
     // Add timings data to state
     this.setState({ timings: timings_json });
 
-    // console.log(timings_json);
-
-    // console.log(this.getNameFromTimestamp(10.0));
-    // console.log(this.getNameFromTimestamp(12.0));
-    // console.log(this.getNameFromTimestamp(14.0));
-
     // Set boundaries for the slider
-    var start_time = this.getStartTimeForName(startNameID);
+    var start_time = this.getStartTimeForName(this.state.start_name_id);
     this.setState({slider_start_ts: start_time});
 
-    var end_time = this.getEndTimeForName(endNameID);
+    var end_time = this.getEndTimeForName(this.state.end_name_id);
     this.setState({slider_end_ts: end_time});
 
     // Seek audio to first name
-    this.seekAudioToName(startNameID);
-
+    this.seekAudioToName(this.state.start_name_id);
   }
 
   getNameFromTimestamp = (ts) => {
@@ -366,49 +418,34 @@ export default class HomeScreen extends React.Component {
     return (ts - start) / (end - start); 
   }
 
-  onLoad = data => {
-    // this.setState({ duration: data.duration });
+  onLoad = (data) => {};
 
-    // console.log("onLoad: " + data.duration);
-  };
-
-  onProgress = data => {
-    // this.setState({ audio_current_time: data.currentTime });
-    // console.log("onProgress: " + data.currentTime);
+  onProgress = (data) => {
 
     // Update slider position
     var slider_value = this.getSliderPositionFromTimestamp(data.currentTime);
     this.setState({ slider_value: slider_value });
 
-    console.log("sss: " + slider_value);
-
     // Select the current name
     var selected_name = this.getNameFromTimestamp(data.currentTime);
 
     // If audio goes beyond the last name, either stop or start over based on repeat setting
-    if (parseInt(selected_name) > parseInt(endNameID)) {
+    if (parseInt(selected_name) > parseInt(this.state.end_name_id)) {
       // If repeat
       if (this.state.repeat_audio) {
-        console.log("start over");
-
-        this.setState({ selected_name: startNameID });
-        this.seekAudioToName(startNameID);
-
+        this.setState({ selected_name: this.state.start_name_id });
+        this.seekAudioToName(this.state.start_name_id);
       }
       else {
         this.pauseAudio();
-        console.log("stop");
       }
     }
     else {
       this.setState({ selected_name: selected_name });
     }
-
     // Scroll to selected name
     var name_index = this.getScrollIndex(selected_name);
     this.flat_list.scrollToIndex({animated: true, index: name_index });
-
-
   };
 
   videoError() {
@@ -419,26 +456,6 @@ export default class HomeScreen extends React.Component {
     this.setState({ audio_playing: false });
     console.log("onEnd");
   };
-
-  // onSeek = data => {
-  //   this.player.seek(data);
-  //   console.log("onSeek: " + data.currentTime);
-  // }
-
-  // getCurrentTimePercentage() {
-  //   if (this.state.audio_current_time > 0) {
-  //     return (
-  //       parseFloat(this.state.audio_current_time) / parseFloat(this.state.duration)
-  //     );
-  //   }
-  //   return 0;
-  // }
-
-  // soundBackward = () => {
-  //   if (!this.state.audio_playing) {
-  //     this.player.seek(this.state.audio_current_time - 5);
-  //   }
-  // };
 
   onSlidingStart = (value) => {
     this.pauseAudio();
@@ -456,7 +473,6 @@ export default class HomeScreen extends React.Component {
   };
 
   onSlidingComplete = (value) => {
-
     var selected_name = this.getNameFromSliderValue(value);
     // Seek audio
     this.seekAudioToName(selected_name);
@@ -489,16 +505,15 @@ export default class HomeScreen extends React.Component {
             key={state.total_columns}
             keyExtractor={item => item.id}
             extraData={state}
-            // initialScrollIndex={this.state.selected_name}
           />
     
-        <View style={{flexDirection: "row", justifyContent: "center"}}>
+        <View style={{flexDirection: "row", justifyContent: "space-around", width: "100%"}}>
         <Button
           title="PRONOUNCE"
           onPress={this.callback_soundPressed}
         />
         <Button
-          color='#112233'
+          color='#222222'
           title={state.play_btn_status}
           onPress={this.callback_playPressed}
         />
@@ -514,7 +529,7 @@ export default class HomeScreen extends React.Component {
 
         <View>
         <Slider
-          style={{width: 300}}
+          style={{width: this.state.total_columns * nameCellWidth - 20}}
           value={this.state.slider_value}
           minimumValue={0}
           maximumValue={1}
@@ -546,57 +561,3 @@ export default class HomeScreen extends React.Component {
       );
   }
 }
-
-
-const styles = StyleSheet.create({
-  
-    container: {
-      flex: 1,
-      alignItems: 'center',
-      justifyContent: 'center',
-      backgroundColor: '#b8d2e6',
-    },
-    name_cell: {
-      backgroundColor: '#9fd0f5',
-      padding: 0,
-      marginVertical: 2,
-      marginHorizontal: 2,
-      alignItems: 'center',
-      width: nameCellWidth,
-      height: nameCellHeight,
-      borderRadius: 0,
-      borderWidth: 1, 
-      borderColor: '#0467b3',
-    },
-    selected_name_cell: {
-      backgroundColor: '#60a0ff',
-      padding: 0,
-      marginVertical: 2,
-      marginHorizontal: 2,
-      alignItems: 'center',
-      width: nameCellWidth,
-      height: nameCellHeight,
-      borderRadius: 0,
-      borderWidth: 1, 
-      borderColor: '#0467b3',
-    },
-    empty_name_cell: {
-        backgroundColor: '#b8d2e6',
-        padding: 0,
-        marginVertical: 2,
-        marginHorizontal: 2,
-        alignItems: 'center',
-        width: nameCellWidth,
-        height: nameCellHeight,
-        borderRadius: 0,
-        borderWidth: 1, 
-        borderColor: '#b8d2e6',
-      },
-    flex: {
-      flex: 1,
-    },
-    list: {
-      flex: 1,
-    },
-  
-  });

@@ -1,0 +1,9 @@
+export const nameCellWidth = 80;
+export const nameCellHeight = 70;
+export const fontSizeArabic = 22.5;
+export const fontSizeArabicSmall = 10.0;
+export const fontSizeArabicSmallThreshold = 15.0;
+export const fontSizeTranslation = 13.00
+export const maxTotalColumns = 10;
+export const AllahTotalNames = 99; 
+export const QuizTotalNames = 10;
