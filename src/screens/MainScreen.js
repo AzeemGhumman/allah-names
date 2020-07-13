@@ -11,6 +11,8 @@ import { Icon } from 'react-native-elements'
 
 import {styles} from '../common/styles.js';
 
+const iconPath = '../../assets/img/icon.png'
+
 export default class MainScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -27,20 +29,15 @@ export default class MainScreen extends React.Component {
   };
 
   onClickGroups = () => {
-    this.props.navigation.navigate("Group", {
-      // startNameID: 1,
-      // endNameID: 9,
-    });
+    this.props.navigation.navigate("Group", {});
   };
 
   onClickQuiz = () => {
-    this.props.navigation.navigate("Quiz", {
-    });
+    this.props.navigation.navigate("Quiz", {});
   }
 
   onClickInfo = () => {
-    this.props.navigation.navigate("Info", {
-    });
+    this.props.navigation.navigate("Info", {});
   }
 
   // Layout changed
@@ -49,7 +46,6 @@ export default class MainScreen extends React.Component {
   
   componentDidMount() {
     // Init setup
-    console.log("init of main screen ...");
   }
 
   render() {
@@ -61,7 +57,7 @@ export default class MainScreen extends React.Component {
       <View onLayout={this.callback_layoutChanged} style={{ flex: 1 }}>
 
       <View style={{flex: 0.5, flexDirection: 'row', justifyContent: "center", alignItems: "center", }} >
-      <Image style={{width: 150, height: 150, }} source={require('../../assets/img/icon.png')} />
+      <Image style={{width: 150, height: 150, }} source={require(iconPath)} />
       </View>
 
         <View style={{flex: 0.5, flexDirection: 'row', justifyContent: 'space-around' }}>
@@ -77,24 +73,17 @@ export default class MainScreen extends React.Component {
             <Text>Sections</Text>
           </TouchableOpacity>
           
-          {/* </View> */}
-
-          {/* <View style={{width: 100, height: 150}}> */}
           <TouchableOpacity style={styles.main_menu_cell} onPress={this.onClickQuiz}>
           <Icon type="font-awesome" color="#60a0ff" name="question-circle" size={50} />
             <Text>Quiz</Text>
           </TouchableOpacity>
 
-          
           <TouchableOpacity style={styles.main_menu_cell} onPress={this.onClickInfo}>
           <Icon type="font-awesome" color="#60a0ff" name="info-circle" size={50} />
             <Text>Info</Text>
           </TouchableOpacity>
-          {/* </View> */}
-
+          
         </View>
-
-
       </View>
       );
   }

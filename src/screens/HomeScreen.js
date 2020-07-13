@@ -25,8 +25,6 @@ import {styles} from '../common/styles.js';
 import names_json from '../../assets/data/names.json';
 import timings_json from '../../assets/data/timings.json';
 
-const screenWidth = Dimensions.get("window").width;
-
 const completeAudioPath = "complete"
 
 const settingsFilepath = RNFS.DocumentDirectoryPath + "/settings.txt";
@@ -61,9 +59,7 @@ export default class HomeScreen extends React.Component {
       names_data: null,
       selected_name: startNameID, 
       total_columns: null, 
-      msg: "hello world",
-      audio_playing: false,
-      // audio_current_time: 0, 
+      audio_playing: false, 
       play_btn_status: "Play",
       repeat_btn_status: String(Repeat.ON),
       repeat_audio: true,  
@@ -79,10 +75,10 @@ export default class HomeScreen extends React.Component {
   async readSettings() {
     try {
       const check_file = await RNFS.readFile(settingsFilepath, "utf8");
-      console.log("file contents: " + check_file);
+      // console.log("file contents: " + check_file);
       return check_file;
     } catch (e) {
-      console.log("Error: reading file ....");
+      console.log("Error: reading file: ", e);
     }
   }
 
@@ -90,7 +86,7 @@ export default class HomeScreen extends React.Component {
     // Create new file
     RNFS.writeFile(settingsFilepath, JSON.stringify(content), "utf8")
     .then(success => {
-      console.log("file written");
+      // console.log("file written");
     })
     .catch(err => {
       console.log("Error writing file: " + err.message);
@@ -167,9 +163,9 @@ export default class HomeScreen extends React.Component {
 
     // Seek to start timestamp of selected name
     var seek_time = this.getStartTimeForName(name);
-    // this.setState({audio_current_time: seek_time});
     
-    this.player.seek(seek_time, 10); // seek time within 10ms 
+    // seek time within 10ms 
+    this.player.seek(seek_time, 10); 
   }
 
   // Name Pressed

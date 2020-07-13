@@ -11,17 +11,12 @@ import {
   Alert,
   Dimensions, 
 } from "react-native";
-// import { NavigationEvents } from "react-navigation";
-
-import { CheckBox } from 'react-native-elements'
 
 import { Icon } from 'react-native-elements'
 
 var RNFS = require("react-native-fs");
 
-
 import { FlatList } from 'react-native-gesture-handler';
-
 
 import {styles} from '../common/styles.js'; 
 
@@ -40,8 +35,6 @@ const uncheckedIcon = "checkbox-passive";
 
 const checksFilepath = RNFS.DocumentDirectoryPath + "/checks.txt";
 
-
-
 export default class GroupScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -53,10 +46,10 @@ export default class GroupScreen extends React.Component {
   async readCheckmarks() {
     try {
       const check_file = await RNFS.readFile(checksFilepath, "utf8");
-      console.log("file contents: " + check_file);
+      // console.log("file contents: " + check_file);
       return check_file;
     } catch (e) {
-      console.log("Error: reading file ....");
+      console.log("Error: reading file: ", e);
     }
   }
 
@@ -141,7 +134,6 @@ export default class GroupScreen extends React.Component {
     groups[item.pos - 1].checked = !groups[item.pos - 1].checked;
     this.setState({groups: groups.slice()});
 
-
     // Toggle state in memory
     var checks = [];
     for (var i = 0; i < groups.length; i ++) {
@@ -150,7 +142,6 @@ export default class GroupScreen extends React.Component {
     var checks_code = this.getStringFromChecks(checks);
     console.log("code -> " + checks_code);
     this.writeChecksFile(checks_code);
-
   };
 
   GroupCell({ item, callback_method, toggle_checkbox, state }) {
@@ -165,9 +156,7 @@ export default class GroupScreen extends React.Component {
         <Text style={{fontFamily: "arabic", fontSize: fontSizeArabic}}> {item.endName}</Text>
       </TouchableOpacity>
 
-        <View
-          style={{width: '100%'}}
-          >
+        <View style={{width: '100%'}}>
           <Icon
             type="fontisto"
             color={item.checked_color}

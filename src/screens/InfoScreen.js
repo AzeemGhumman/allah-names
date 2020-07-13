@@ -17,10 +17,7 @@ const refTitle = "Sahih Al-Bukhari: 2736"
 export default class QuizScreen extends React.Component {
   constructor(props) {
     super(props);
-
-    this.state = {
-      
-    };
+    this.state = {};
   }
 
   componentDidMount() {
@@ -79,39 +76,37 @@ export default class QuizScreen extends React.Component {
     return (
         <View 
           style={{backgroundColor: '#b8d2e6', paddingLeft: 10, paddingRight: 10, paddingTop: 10, paddingBottom: 10, height: "100%"}}>
-
-        <Text 
-        style={{padding: 5, fontSize: 20, textAlign: 'center', borderWidth: 2, borderRadius: 3, borderColor: "#336699", color: "#336699", textDecorationLine: "underline"  }}
-        onPress={this.refClicked}
-        >
-          {refTitle}
-        </Text>
-
-        <Text
-          style={{fontSize: 20, padding: 10,  fontFamily: "arabic", }}
+          
+          <Text 
+          style={{padding: 5, fontSize: 20, textAlign: 'center', borderWidth: 2, borderRadius: 3, borderColor: "#336699", color: "#336699", textDecorationLine: "underline"  }}
+          onPress={this.refClicked}
           >
-                إِنَّ لِلَّهِ تِسْعَةً وَتِسْعِينَ اسْمَا مِائَةً إِلاَّ وَاحِدًا مَنْ أَحْصَاهَا دَخَلَ الْجَنَّةَ
-        </Text>
-        
-        <Text 
-          style={{fontSize: 20, padding: 10, fontFamily: "urdu", }}
+            {refTitle}
+          </Text>
+
+          <Text
+            style={{fontSize: 20, padding: 10,  fontFamily: "arabic", }}
+            >
+                  إِنَّ لِلَّهِ تِسْعَةً وَتِسْعِينَ اسْمَا مِائَةً إِلاَّ وَاحِدًا مَنْ أَحْصَاهَا دَخَلَ الْجَنَّةَ
+          </Text>
+          
+          <Text 
+            style={{fontSize: 20, padding: 10, fontFamily: "urdu", }}
+            >
+                رسول اللہ ﷺ نے فرمایا اللہ تعالیٰ کے ننانوے نام ہیں یعنی ایک کم سو ۔ جو شخص ان سب کو محفوظ رکھے گا وہ جنت میں داخل ہو گا ۔
+          </Text>
+
+          <Text 
+          style={{fontSize: 15, paddingTop: 10, fontFamily: "english", }}
           >
-              رسول اللہ ﷺ نے فرمایا اللہ تعالیٰ کے ننانوے نام ہیں یعنی ایک کم سو ۔ جو شخص ان سب کو محفوظ رکھے گا وہ جنت میں داخل ہو گا ۔
-        </Text>
+              Allah's Messenger (ﷺ) said, "Allah has ninety-nine names, i.e. one-hundred minus one, and whoever knows them will go to Paradise." 
+          </Text>
 
-        <Text 
-        style={{fontSize: 15, paddingTop: 10, fontFamily: "english", }}
-        >
-            Allah's Messenger (ﷺ) said, "Allah has ninety-nine names, i.e. one-hundred minus one, and whoever knows them will go to Paradise." 
-        </Text>
-
-        <View style={{paddingTop: 30}}>
-          <Button title="Send Feedback to Developers" onPress={this.runEmailClient} />
-        </View>
+          <View style={{paddingTop: 30}}>
+            <Button title="Send Feedback to Developers" onPress={this.runEmailClient} />
+          </View>
         
         </View>
-        
-
       );
   }
 }

@@ -176,11 +176,6 @@ export default class QuizScreen extends React.Component {
     var first = this.state.first;
     var second = this.state.second;
 
-    console.log("start_id: " + start_id);
-    console.log("end_id: " + end_id);
-    console.log("first: " + first);
-    console.log("second: " + second);
-
     var counter = 1;
     for (var index = start_id; index <= end_id; index++) {
       var item = names_json[String(index)];
@@ -221,8 +216,6 @@ export default class QuizScreen extends React.Component {
 
   generateQuiz = () => {
 
-    console.log("generating quiz ...");
-
     // Generate random range of names
     var startID = Math.floor(Math.random() * Math.floor(AllahTotalNames - QuizTotalNames)) + 1;
     var endID = startID + QuizTotalNames - 1;
@@ -235,7 +228,6 @@ export default class QuizScreen extends React.Component {
     }
     first += startID;
     second += startID;
-
 
     this.setState({start_name_id: startID});
     this.setState({end_name_id: endID});
@@ -257,7 +249,7 @@ export default class QuizScreen extends React.Component {
         <View 
           style={{backgroundColor: '#b8d2e6', flex: 1}}>
         <Text 
-          style={{padding: 20, }}
+          style={{padding: 20, fontFamily: 'english'}}
           >Click on the two names that are swapped with each other.</Text>
         <View onLayout={this.callback_layoutChanged} style={styles.quiz_container}>
           <FlatList
@@ -298,8 +290,11 @@ export default class QuizScreen extends React.Component {
 
 /*
 TODO: 
+state machine using enumeration
 Test on tablet
 Change app name
 Publish to play store
 Ahmed feedback
+Clean code
+Push code to github with documenting the json files as artifacts
 */
