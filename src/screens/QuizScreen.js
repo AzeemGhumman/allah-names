@@ -20,6 +20,14 @@ import {nameCellWidth, nameCellHeight, maxTotalColumns, fontSizeArabic, fontSize
 
 import {styles} from '../common/styles.js';
 
+const QuizState = {
+  START: 'start',
+  FIRST_ATTEMPTED: 'first',
+  SECOND_ATTEMPTED: 'second',
+  LOST: 'lost',
+  WON: 'won',
+}
+
 export default class QuizScreen extends React.Component {
   constructor(props) {
     super(props);
@@ -33,7 +41,7 @@ export default class QuizScreen extends React.Component {
       first: null,
       second: null,
       wrong: null, 
-      status: 'nothing', 
+      status: QuizState.START, 
       allow_restart: false,
       is_won: false,
       is_lost: false,  
@@ -50,41 +58,41 @@ export default class QuizScreen extends React.Component {
 
     this.setState({ selected_name: item.id });
 
-    if (status == 'nothing') {
+    if (status == QuizState.START) {
       if (current == first) {
-        this.setState({status: "first"});
+        this.setState({status: QuizState.FIRST_ATTEMPTED});
       }
       else if (current == second) {
-        this.setState({status: "second"});
+        this.setState({status: QuizState.SECOND_ATTEMPTED});
       }
       else {
-        this.setState({status: "lost"});
+        this.setState({status: QuizState.LOST});
         this.setState({is_lost: true});
       }
     }
-    else if (status == 'first') {
+    else if (status == QuizState.FIRST_ATTEMPTED) {
       if (current == first) {
         return;
       }
       if (current == second) {
-        this.setState({status: "won"});
+        this.setState({status: QuizState.WON});
         this.setState({is_won: true});
       }
       else {
-        this.setState({status: "lost"});
+        this.setState({status: QuizState.LOST});
         this.setState({is_lost: true});
       }
     }
-    else if (status == 'second') {
+    else if (status == QuizState.SECOND_ATTEMPTED) {
       if (current == second) {
         return;
       }
       if (current == first) {
-        this.setState({status: "won"});
+        this.setState({status: QuizState.WON});
         this.setState({is_won: true});
       }
       else {
-        this.setState({status: "lost"});
+        this.setState({status: QuizState.LOST});
         this.setState({is_lost: true});
       }
     }
@@ -125,7 +133,7 @@ export default class QuizScreen extends React.Component {
     // default style
     var style = styles.name_cell;
     
-    if (state.status == 'first' || state.status == 'second') {
+    if (state.status == QuizState.FIRST_ATTEMPTED || state.status == QuizState.SECOND_ATTEMPTED) {
       // Correct guess
       if (item.id == state.selected_name) {
         if (item.id == state.first || item.id == state.second) {
@@ -137,14 +145,14 @@ export default class QuizScreen extends React.Component {
       }
     }
 
-    else if (state.status == 'won') {
+    else if (state.status == QuizState.WON) {
       // Correct guess
       if (item.id == state.first || item.id == state.second) {
         style = styles.quiz_correct_cell;  
       }
     }
 
-    else if (state.status == 'lost') {
+    else if (state.status == QuizState.LOST) {
       // Correct guess
       if (item.id == state.first || item.id == state.second) {
         style = styles.quiz_correct_cell;  
@@ -235,7 +243,7 @@ export default class QuizScreen extends React.Component {
     this.setState({second: second});
 
     // Reset game state machine
-    this.setState({status: "nothing"});
+    this.setState({status: QuizState.START});
     this.setState({is_lost: false});
     this.setState({is_won: false});
   }
@@ -287,14 +295,3 @@ export default class QuizScreen extends React.Component {
       );
   }
 }
-
-/*
-TODO: 
-state machine using enumeration
-Test on tablet
-Change app name
-Publish to play store
-Ahmed feedback
-Clean code
-Push code to github with documenting the json files as artifacts
-*/

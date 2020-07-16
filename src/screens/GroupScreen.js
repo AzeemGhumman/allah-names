@@ -39,7 +39,6 @@ export default class GroupScreen extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      some_data: null, 
     };
   }
 
@@ -59,7 +58,6 @@ export default class GroupScreen extends React.Component {
       var item = groups_json[index];
 
       var checked = checkmarks[index - 1];
-      // var checked = true;
       
       var color = uncheckedColor;
       var style = styles.unchecked_group_cell;
@@ -77,7 +75,7 @@ export default class GroupScreen extends React.Component {
   };
 
   callback_groupPressed = (item) => {
-    this.props.navigation.navigate("Home", {
+    this.props.navigation.navigate("Learn", {
       startNameID: item.start,
       endNameID: item.end,
     });
@@ -85,7 +83,6 @@ export default class GroupScreen extends React.Component {
 
   // Layout changed
   callback_layoutChanged = () => {
-
   };
 
   getChecksFromString = (checks_code) => {
@@ -140,7 +137,7 @@ export default class GroupScreen extends React.Component {
       checks.push(groups[i].checked);  
     }
     var checks_code = this.getStringFromChecks(checks);
-    console.log("code -> " + checks_code);
+    // console.log("code -> " + checks_code);
     this.writeChecksFile(checks_code);
   };
 

@@ -10,28 +10,28 @@ import {
   createStackNavigator
 } from "react-navigation-stack"
 
+import LearnScreen from "./screens/LearnScreen"; // learn screen
 import HomeScreen from "./screens/HomeScreen"; // home screen
-import MainScreen from "./screens/MainScreen"; // main screen
 import GroupScreen from "./screens/GroupScreen"; // group screen
 import QuizScreen from "./screens/QuizScreen"; // quiz screen
 import InfoScreen from "./screens/InfoScreen"; // info screen
 
 const AppNavigator = createStackNavigator(
   {
-    Main: {
-      screen: MainScreen,
+    Home: {
+      screen: HomeScreen,
+      navigationOptions: {
+        header: null
+      }
+    },
+    Learn: {
+      screen: LearnScreen,
       navigationOptions: {
         header: null
       }
     },
     Group: {
       screen: GroupScreen,
-      navigationOptions: {
-        header: null
-      }
-    },
-    Home: {
-      screen: HomeScreen,
       navigationOptions: {
         header: null
       }
@@ -49,7 +49,7 @@ const AppNavigator = createStackNavigator(
       }
     },
   },
-  { initialRouteName: Platform.OS === "ios" ? "Main" : "Main" }
+  { initialRouteName: Platform.OS === "ios" ? "Home" : "Home" }
 ); // if ios, first screen is Home else Splash
 
 // main app container

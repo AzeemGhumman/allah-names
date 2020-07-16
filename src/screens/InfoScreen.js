@@ -1,11 +1,8 @@
 import React from "react";
 import {
-  TouchableOpacity,
-  TouchableHighlight, 
   Button,
   View,
   Text,
-  Dimensions, 
   Linking, 
 } from "react-native";
 
