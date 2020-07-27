@@ -1,4 +1,4 @@
-package com.names;
+package com.azeem.namesofallah;
 
 import com.facebook.react.ReactActivity;
 

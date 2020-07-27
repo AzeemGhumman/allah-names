@@ -129,7 +129,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.names"
+        applicationId "com.azeem.namesofallah"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1
